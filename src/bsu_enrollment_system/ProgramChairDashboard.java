@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ public class ProgramChairDashboard extends JFrame {
     
     public ProgramChairDashboard(int userId) {
         this.userId = userId;
+        loadBackgroundImage();
         loadProgramChairData();
         initializeUI();
     }
@@ -130,34 +132,89 @@ public class ProgramChairDashboard extends JFrame {
         }
     }
     
-    private void initializeUI() {
-        setTitle("BSU Enrollment System - Program Chair Dashboard");
-        setSize(1200, 800);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        
-        // Main Panel
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        // Tabbed Pane
-        JTabbedPane tabbedPane = new JTabbedPane();
-        
-        // 1. Class Management Tab
-        tabbedPane.addTab("Class Management", createClassManagementPanel());
-        
-        // 2. Irregular Approvals Tab
-        tabbedPane.addTab("Irregular Approvals", createIrregularApprovalsPanel());
-        
-        // 3. Drop Approvals Tab
-        tabbedPane.addTab("Drop Approvals", createDropApprovalsPanel());
-        
-        // 4. Reports Tab
-        tabbedPane.addTab("Reports", createReportsPanel());
-        
-        mainPanel.add(tabbedPane, BorderLayout.CENTER);
-        add(mainPanel);
+   private void initializeUI() {
+    setTitle("BSU Enrollment System - Program Chair Dashboard");
+    setSize(1200, 800);
+    setDefaultCloseOperation(EXIT_ON_CLOSE);
+    setLocationRelativeTo(null);
+    
+    // Main Panel with BorderLayout
+    JPanel mainPanel = new JPanel(new BorderLayout());
+    mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    
+    // Header Panel with background image
+    JPanel headerPanel = new JPanel(new BorderLayout()) {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (backgroundImage != null) {
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            } else {
+                // Fallback to a gradient if image couldn't be loaded
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                int w = getWidth();
+                int h = getHeight();
+                Color bsuBlue = new Color(0, 51, 153);
+                GradientPaint gp = new GradientPaint(0, 0, bsuBlue, 0, h, new Color(0, 102, 204));
+                g2d.setPaint(gp);
+                g2d.fillRect(0, 0, w, h);
+            }
+        }
+    };
+    headerPanel.setPreferredSize(new Dimension(1200, 150)); // Set your desired header height
+    
+    // Add header to the top of the main panel
+    mainPanel.add(headerPanel, BorderLayout.NORTH);
+    
+    // Tabbed Pane
+    JTabbedPane tabbedPane = new JTabbedPane();
+    
+    // 1. Class Management Tab
+    tabbedPane.addTab("Class Management", createClassManagementPanel());
+    
+    // 2. Irregular Approvals Tab
+    tabbedPane.addTab("Irregular Approvals", createIrregularApprovalsPanel());
+    
+    // 3. Drop Approvals Tab
+    tabbedPane.addTab("Drop Approvals", createDropApprovalsPanel());
+    
+    // 4. Reports Tab
+    tabbedPane.addTab("Reports", createReportsPanel());
+    
+    mainPanel.add(tabbedPane, BorderLayout.CENTER);
+    add(mainPanel);
+}
+
+private Image backgroundImage;
+
+private void loadBackgroundImage() {
+    try {
+        // Option 1: Try loading from resources folder
+        backgroundImage = new ImageIcon(getClass().getResource("/programchairportal.png")).getImage();
+    } catch (Exception e1) {
+        try {
+            // Option 2: Try loading from specific package in resources
+            backgroundImage = new ImageIcon(getClass().getResource("/bsu_enrollment_system/programchairportal.png")).getImage();
+        } catch (Exception e2) {
+            try {
+                // Option 3: Try loading from project directory
+                backgroundImage = new ImageIcon("bsuheader.jpg").getImage();
+            } catch (Exception e3) {
+                try {
+                    // Option 4: Try loading from absolute path
+                    String userDir = System.getProperty("user.dir");
+                    backgroundImage = new ImageIcon(userDir + File.separator + "src" + 
+                                    File.separator + "bsu_enrollment_system" + 
+                                    File.separator + "programchairportal.png").getImage();
+                } catch (Exception e4) {
+                    System.err.println("Could not load background image. Please check the file path.");
+                    e4.printStackTrace();
+                }
+            }
+        }
     }
+}
     
     private JPanel createClassManagementPanel() {
         JPanel panel = new JPanel(new BorderLayout());
