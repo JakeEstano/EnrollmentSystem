@@ -298,7 +298,8 @@ private void initializeUI() {
                 
                 switch (role) {
                     case "student":
-                        new StudentDashboard(userId, studentId).setVisible(true);
+                         new StudentDashboard(String.valueOf(studentId)).setVisible(true);
+
                         break;
                     case "program_chair":
                         new ProgramChairDashboard(userId).setVisible(true);
