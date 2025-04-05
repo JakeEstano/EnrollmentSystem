@@ -255,7 +255,7 @@ private void initializeUI() {
     // Footer
     JPanel footerPanel = new JPanel();
     footerPanel.setOpaque(false);
-    JLabel footerLabel = new JLabel("© 2025 Batangas State University");
+    JLabel footerLabel = new JLabel("© 2025 Batangas State University (enrollment system)");
     footerLabel.setFont(new Font("Arial", Font.PLAIN, 14));
     footerLabel.setForeground(Color.WHITE);
     footerPanel.add(footerLabel);
