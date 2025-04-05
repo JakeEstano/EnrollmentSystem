@@ -7,6 +7,7 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+//hello
 public class DocumentGenerator {
     public static void generateCOR(int studentId, int semester, String academicYear) {
         try {
