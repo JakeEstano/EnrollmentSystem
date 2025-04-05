@@ -3,14 +3,45 @@ package bsu_enrollment_system;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.sql.*;
 
 public class LoginFrame extends JFrame {
     private JTextField usernameField;
     private JPasswordField passwordField;
+    private Image backgroundImage;
     
     public LoginFrame() {
+        loadBackgroundImage();
         initializeUI();
+    }
+    
+    private void loadBackgroundImage() {
+        try {
+            // Option 1: Try loading from resources folder
+            backgroundImage = new ImageIcon(getClass().getResource("/bsulogin.png")).getImage();
+        } catch (Exception e1) {
+            try {
+                // Option 2: Try loading from specific package in resources
+                backgroundImage = new ImageIcon(getClass().getResource("/bsu_enrollment_system/bsulogin.png")).getImage();
+            } catch (Exception e2) {
+                try {
+                    // Option 3: Try loading from project directory
+                    backgroundImage = new ImageIcon("bsulogin.jpg").getImage();
+                } catch (Exception e3) {
+                    try {
+                        // Option 4: Try loading from absolute path (modify this path to match your system)
+                        String userDir = System.getProperty("user.dir");
+                        backgroundImage = new ImageIcon(userDir + File.separator + "src" + 
+                                          File.separator + "bsu_enrollment_system" + 
+                                          File.separator + "bsulogin.jpg").getImage();
+                    } catch (Exception e4) {
+                        System.err.println("Could not load background image. Please check the file path.");
+                        e4.printStackTrace();
+                    }
+                }
+            }
+        }
     }
     
     private void initializeUI() {
@@ -23,38 +54,62 @@ public class LoginFrame extends JFrame {
         Color bsuBlue = new Color(0, 51, 153);
         Color bsuYellow = new Color(255, 204, 0);
         
-        // Main Panel
-        JPanel mainPanel = new JPanel(new BorderLayout());
+        // Main Panel with background image
+        JPanel mainPanel = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (backgroundImage != null) {
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    // Fallback to a gradient if image couldn't be loaded
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                    int w = getWidth();
+                    int h = getHeight();
+                    GradientPaint gp = new GradientPaint(0, 0, bsuBlue, 0, h, new Color(0, 102, 204));
+                    g2d.setPaint(gp);
+                    g2d.fillRect(0, 0, w, h);
+                }
+            }
+        };
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        mainPanel.setBackground(Color.WHITE);
         
         // Header Panel
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(Color.WHITE);
+        headerPanel.setOpaque(false); // Make it transparent to show background image
         
         // Logo (placeholder)
-        JLabel logoLabel = new JLabel("BSU LOGO", SwingConstants.CENTER);
-        logoLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        logoLabel.setForeground(bsuBlue);
-        headerPanel.add(logoLabel, BorderLayout.CENTER);
+        
+        
         
         // Title
         JLabel titleLabel = new JLabel("BATANGAS STATE UNIVERSITY", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        titleLabel.setForeground(bsuBlue);
+        titleLabel.setForeground(Color.WHITE);
         headerPanel.add(titleLabel, BorderLayout.NORTH);
         
         // Subtitle
         JLabel subTitleLabel = new JLabel("Enrollment Management System", SwingConstants.CENTER);
         subTitleLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        subTitleLabel.setForeground(Color.WHITE);
         headerPanel.add(subTitleLabel, BorderLayout.SOUTH);
         
         mainPanel.add(headerPanel, BorderLayout.NORTH);
         
-        // Login Form Panel
-        JPanel loginPanel = new JPanel(new GridBagLayout());
+        // Login Form Panel - with semi-transparent background for better readability
+        JPanel loginPanel = new JPanel(new GridBagLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setColor(new Color(255, 255, 255, 180)); // Semi-transparent white
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+                g2d.dispose();
+            }
+        };
         loginPanel.setBorder(BorderFactory.createEmptyBorder(50, 150, 50, 150));
-        loginPanel.setBackground(Color.WHITE);
+        loginPanel.setOpaque(false); // Transparent to show the background with our semi-transparent overlay
         
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
@@ -88,7 +143,7 @@ public class LoginFrame extends JFrame {
         gbc.anchor = GridBagConstraints.LINE_END;
         JButton loginButton = new JButton("Login");
         loginButton.setBackground(bsuBlue);
-        loginButton.setForeground(Color.WHITE);
+        loginButton.setForeground(Color.BLACK);
         loginButton.setFont(new Font("Arial", Font.BOLD, 14));
         loginButton.addActionListener(this::performLogin);
         loginPanel.add(loginButton, gbc);
@@ -97,9 +152,9 @@ public class LoginFrame extends JFrame {
         
         // Footer
         JPanel footerPanel = new JPanel();
-        footerPanel.setBackground(Color.WHITE);
+        footerPanel.setOpaque(false); // Make it transparent to show background image
         JLabel footerLabel = new JLabel("© 2023 Batangas State University");
-        footerLabel.setForeground(bsuBlue);
+        footerLabel.setForeground(Color.BLACK);
         footerPanel.add(footerLabel);
         mainPanel.add(footerPanel, BorderLayout.SOUTH);
         
