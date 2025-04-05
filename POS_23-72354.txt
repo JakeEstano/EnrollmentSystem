@@ -1,0 +1,16 @@
+BATANGAS STATE UNIVERSITY
+PROGRAM OF STUDY
+
+Student Name: Jake Estano
+Student Number: 23-72354
+Program: Bachelor of Science in Computer Science
+
+CURRICULUM:
+----------------------------------------------------
+Year	Sem	Code	Name		Units
+1	1	CS101	Introduction to Programming	3.0
+1	2	CS102	Data Structures	3.0
+2	1	CS201	Algorithms	3.0
+2	2	CS202	Database Systems	3.0
+3	1	CS301	Operating Systems	3.0
+3	2	CS302	Computer Networks	3.0
