@@ -265,60 +265,68 @@ private void initializeUI() {
 }
 
     
-    private void performLogin(ActionEvent e) {
-        // Get username, cleaning up placeholder if necessary
-        String username = usernameField.getText();
-        if (username.equals("Username")) username = "";
-        
-        // Get password, cleaning up placeholder if necessary
-        String password = new String(passwordField.getPassword());
-        if (password.equals("Password")) password = "";
-        
-        if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter both username and password", 
-                "Login Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        try (Connection conn = DBConnection.getConnection()) {
-            String sql = "SELECT u.user_id, u.role, s.student_id FROM users u " +
-                       "LEFT JOIN students s ON u.user_id = s.user_id " +
-                       "WHERE u.username = ? AND u.password = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, username);
-            stmt.setString(2, password);
-            
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                String role = rs.getString("role");
-                int userId = rs.getInt("user_id");
-                int studentId = rs.getInt("student_id");
-                
-                dispose(); // Close login window
-                
-                switch (role) {
-                    case "student":
-                         new StudentDashboard(String.valueOf(studentId)).setVisible(true);
-
-                        break;
-                    case "program_chair":
-                        new ProgramChairDashboard(userId).setVisible(true);
-                        break;
-                    case "dean":
-                        new DeanDashboard(userId).setVisible(true);
-                        break;
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Invalid username or password", 
-                    "Login Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), 
-                "System Error", JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
-        }
+ private void performLogin(ActionEvent e) {
+    // Get username, cleaning up placeholder if necessary
+    String username = usernameField.getText();
+    if (username.equals("Username")) username = "";
+    
+    // Get password, cleaning up placeholder if necessary
+    String password = new String(passwordField.getPassword());
+    if (password.equals("Password")) password = "";
+    
+    if (username.isEmpty() || password.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please enter both username and password", 
+            "Login Error", JOptionPane.ERROR_MESSAGE);
+        return;
     }
     
+    try (Connection conn = DBConnection.getConnection()) {
+        // Modified SQL to get student's name as well
+        String sql = "SELECT u.user_id, u.role, s.student_id, u.last_name, u.first_name " +
+                   "FROM users u " +
+                   "LEFT JOIN students s ON u.user_id = s.user_id " +
+                   "WHERE u.username = ? AND u.password = ?";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setString(1, username);
+        stmt.setString(2, password);
+        
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            String role = rs.getString("role");
+            int userId = rs.getInt("user_id");
+            int studentId = rs.getInt("student_id");
+            
+            dispose(); // Close login window
+            
+            switch (role) {
+                case "student":
+                    // Format the name as "LASTNAME, FIRSTNAME"
+                    String lastName = rs.getString("last_name");
+                    String firstName = rs.getString("first_name");
+                    
+                    String fullName = lastName.toUpperCase() + ", " + firstName.toUpperCase();
+                    
+                    // Pass both studentId and student name to dashboard
+                    new StudentDashboard(String.valueOf(studentId), fullName).setVisible(true);
+                    break;
+                case "program_chair":
+                    new ProgramChairDashboard(userId).setVisible(true);
+                    break;
+                case "dean":
+                    new DeanDashboard(userId).setVisible(true);
+                    break;
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid username or password", 
+                "Login Error", JOptionPane.ERROR_MESSAGE);
+        }
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), 
+            "System Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
+    }
+}
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
